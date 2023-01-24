@@ -15,7 +15,6 @@
 
 """Test slurmdbd charm against other SLURM charms in the latest/edge channel."""
 
-import codecs
 import logging
 import pathlib
 from typing import Any, Coroutine
@@ -25,7 +24,7 @@ import pytest
 import tenacity
 from pytest_operator.plugin import OpsTest
 
-from helpers import get_slurmctld_res, get_slurmdbd_res, unit_connection
+from helpers import get_slurmctld_res, get_slurmdbd_res
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +32,6 @@ SERIES = ["focal"]
 SLURMDBD = "slurmdbd"
 SLURMCTLD = "slurmctld"
 DATABASE = "percona-cluster"
-UNIT = f"{SLURMDBD}/0"
 
 
 @pytest.mark.abort_on_fail
@@ -89,9 +87,9 @@ async def test_build_and_deploy_against_edge(
 async def test_slurmdbd_is_active(ops_test: OpsTest) -> None:
     """Test that slurmdbd is active inside Juju unit."""
     logger.info("Checking that slurmdbd daemon is active inside unit...")
-    async with unit_connection(ops_test, SLURMDBD, UNIT) as conn:
-        stdin, stdout, stderr = conn.exec_command("systemctl is-active slurmdbd")
-        assert codecs.decode(stdout.read()).strip("\n") == "active"
+    slurmdbd_unit = ops_test.model.applications[SLURMDBD].units[0]
+    res = (await slurmdbd_unit.ssh("systemctl is-active slurmdbd")).strip("\n")
+    assert res == "active"
 
 
 @pytest.mark.abort_on_fail
@@ -103,9 +101,9 @@ async def test_slurmdbd_is_active(ops_test: OpsTest) -> None:
 async def test_slurmdbd_port_listen(ops_test: OpsTest) -> None:
     """Test that slurmdbd is listening on port 6819."""
     logger.info("Checking that slurmdbd is listening on port 6819...")
-    async with unit_connection(ops_test, SLURMDBD, UNIT) as conn:
-        stdin, stdout, stderr = conn.exec_command("sudo lsof -i -n | grep ':6819'")
-        assert "LISTEN" in codecs.decode(stdout.read())
+    slurmdbd_unit = ops_test.model.applications[SLURMDBD].units[0]
+    res = await slurmdbd_unit.ssh("sudo lsof -t -n -iTCP:6819 -sTCP:LISTEN")
+    assert res != ""
 
 
 @pytest.mark.abort_on_fail
@@ -115,8 +113,8 @@ async def test_slurmdbd_port_listen(ops_test: OpsTest) -> None:
     reraise=True,
 )
 async def test_munge_is_active(ops_test: OpsTest) -> None:
-    """Test that slurmctld is active inside Juju unit."""
+    """Test that munge is active inside Juju unit."""
     logger.info("Checking that munge is active inside Juju unit...")
-    async with unit_connection(ops_test, SLURMDBD, UNIT) as conn:
-        stdin, stdout, stderr = conn.exec_command("systemctl is-active munge")
-        assert codecs.decode(stdout.read()).strip("\n") == "active"
+    slurmdbd_unit = ops_test.model.applications[SLURMDBD].units[0]
+    res = (await slurmdbd_unit.ssh("systemctl is-active munge")).strip("\n")
+    assert res == "active"
