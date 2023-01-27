@@ -93,7 +93,7 @@ class Slurmdbd(Object):
 
         # slurmctld sets the munge_key on the relation-created event
         # which happens before relation-joined. We can almost guarantee that
-        # the munge key will exist at this point, but check for it just incase.
+        # the munge key will exist at this point, but check for it just in case.
         munge_key = event_app_data.get("munge_key")
         if not munge_key:
             event.defer()
@@ -101,7 +101,7 @@ class Slurmdbd(Object):
 
         # slurmctld sets the jwt_rsa on the relation-created event
         # which happens before relation-joined. We can almost guarantee that
-        # the jwt_rsa will exist at this point, but check for it just incase.
+        # the jwt_rsa will exist at this point, but check for it just in case.
         jwt_rsa = event_app_data.get("jwt_rsa")
         if not jwt_rsa:
             event.defer()

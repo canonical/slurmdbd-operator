@@ -97,7 +97,7 @@ class TestCharm(unittest.TestCase):
         self.harness.charm._stored.slurm_installed = True
         res = self.harness.charm._check_status()
         self.assertEqual(
-            self.harness.charm.unit.status, BlockedStatus("Need relations: MySQL,slurcmtld")
+            self.harness.charm.unit.status, BlockedStatus("Need relations: MySQL,slurmctld")
         )
         self.assertFalse(
             res, msg="_check_status returned value True instead of expected value False."

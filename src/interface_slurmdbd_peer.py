@@ -11,7 +11,7 @@ logger = logging.getLogger()
 
 
 class SlurmdbdPeerAvailableEvent(EventBase):
-    """Emmited in the relation_changed event when a peer comes online."""
+    """Emitted in the relation_changed event when a peer comes online."""
 
 
 class SlurmdbdPeerRelationEvents(ObjectEvents):
@@ -60,8 +60,8 @@ class SlurmdbdPeer(Object):
 
     def _on_relation_changed(self, event):
         """Use the leader and app relation data to schedule active/backup."""
-        # We only modify the slurmdbd queue if we are the leaader.
-        # As such, we dont need to preform any operations here
+        # We only modify the slurmdbd queue if we are the leader.
+        # As such, we don't need to perform any operations here
         # if we are not the leader.
         if self.framework.model.unit.is_leader():
             relation = self.framework.model.get_relation(self._relation_name)

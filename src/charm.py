@@ -140,7 +140,7 @@ class SlurmdbdCharm(CharmBase):
         self._slurm_manager.configure_munge_key(munge_key)
 
         if self._slurm_manager.restart_munged():
-            logger.debug("## Munge restarted succesfully")
+            logger.debug("## Munge restarted successfully")
             self._stored.munge_available = True
         else:
             logger.error("## Unable to restart munge")
@@ -198,7 +198,7 @@ class SlurmdbdCharm(CharmBase):
         self._check_slurmdbd()
 
         # Only the leader can set relation data on the application.
-        # Enforce that no one other then the leader trys to set
+        # Enforce that no one other than the leader tries to set
         # application relation data.
         if self.model.unit.is_leader():
             self._slurmdbd.set_slurmdbd_info_on_app_relation_data(
@@ -242,7 +242,7 @@ class SlurmdbdCharm(CharmBase):
         slurmctld_available = self._stored.jwt_available and self._stored.munge_available
         statuses = {
             "MySQL": {"available": self._stored.db_info != {}, "joined": self._db.is_joined},
-            "slurcmtld": {"available": slurmctld_available, "joined": self._slurmdbd.is_joined},
+            "slurmctld": {"available": slurmctld_available, "joined": self._slurmdbd.is_joined},
         }
 
         relations_needed = []
@@ -259,7 +259,7 @@ class SlurmdbdCharm(CharmBase):
             return False
 
         if len(waiting_on):
-            msg = f"Wating on: {','.join(waiting_on)}"
+            msg = f"Waiting on: {','.join(waiting_on)}"
             self.unit.status = WaitingStatus(msg)
             return False
 
