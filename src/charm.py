@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from time import sleep
 
+from charms.fluentbit.v0.fluentbit import FluentbitClient
 from interface_mysql import MySQLClient
 from interface_slurmdbd import Slurmdbd
 from interface_slurmdbd_peer import SlurmdbdPeer
@@ -12,8 +13,6 @@ from ops.framework import EventBase, EventSource, StoredState
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
 from slurm_ops_manager import SlurmManager
-
-from charms.fluentbit.v0.fluentbit import FluentbitClient
 
 logger = logging.getLogger()
 
@@ -32,6 +31,7 @@ class WriteConfigAndRestartSlurmdbd(EventBase):
 
 class SlurmdbdCharmEvents(CharmEvents):
     """Slurmdbd emitted events."""
+
     jwt_available = EventSource(JwtAvailable)
     munge_available = EventSource(MungeAvailable)
     write_config = EventSource(WriteConfigAndRestartSlurmdbd)
@@ -48,11 +48,11 @@ class SlurmdbdCharm(CharmBase):
         super().__init__(*args)
 
         self._stored.set_default(
-            db_info=dict(),
+            db_info={},
             jwt_available=False,
             munge_available=False,
             slurm_installed=False,
-            cluster_name=str()
+            cluster_name=str(),
         )
 
         self._db = MySQLClient(self, "db")
@@ -105,7 +105,7 @@ class SlurmdbdCharm(CharmBase):
 
     def _configure_fluentbit(self):
         logger.debug("## Configuring fluentbit")
-        cfg = list()
+        cfg = []
         cfg.extend(self._slurm_manager.fluentbit_config_nhc)
         cfg.extend(self._slurm_manager.fluentbit_config_slurm)
         self._fluentbit.configure(cfg)
@@ -148,7 +148,7 @@ class SlurmdbdCharm(CharmBase):
             event.defer()
 
     def _on_db_unavailable(self, event):
-        self._stored.db_info = dict()
+        self._stored.db_info = {}
         # TODO tell slurmctld that slurmdbd left?
         self._check_status()
 
@@ -239,15 +239,14 @@ class SlurmdbdCharm(CharmBase):
 
         # we must be sure to initialize the charms correctly. Slurmdbd must
         # first connect to the db to be able to connect to slurmctld correctly
-        slurmctld_available = (self._stored.jwt_available
-                               and self._stored.munge_available)
-        statuses = {"MySQL": {"available": self._stored.db_info != dict(),
-                              "joined": self._db.is_joined},
-                    "slurcmtld": {"available": slurmctld_available,
-                                  "joined": self._slurmdbd.is_joined}}
+        slurmctld_available = self._stored.jwt_available and self._stored.munge_available
+        statuses = {
+            "MySQL": {"available": self._stored.db_info != {}, "joined": self._db.is_joined},
+            "slurcmtld": {"available": slurmctld_available, "joined": self._slurmdbd.is_joined},
+        }
 
-        relations_needed = list()
-        waiting_on = list()
+        relations_needed = []
+        waiting_on = []
         for component in statuses.keys():
             if not statuses[component]["joined"]:
                 relations_needed.append(component)
