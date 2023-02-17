@@ -15,13 +15,21 @@
 
 """Manager for unit slurmdbd service."""
 
-from charms.operator_libs_linux.v1.systemd import service_restart, service_stop, service_start
+from charms.operator_libs_linux.v1.systemd import service_restart, service_start, service_stop
+
 from ._confeditor import SlurmdbdConfEditor
 
 
 class SlurmdbdManager:
+    """Manage slurmdbd on Juju unit."""
+
     @property
     def conf(self) -> SlurmdbdConfEditor:
+        """slurmdbd configuration file editor.
+
+        Returns:
+            (SlurmdbdConfEditor): Instance of slurmdbd configuration file editor.
+        """
         return SlurmdbdConfEditor()
 
     @staticmethod

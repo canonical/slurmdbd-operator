@@ -21,7 +21,7 @@ import re
 from collections import deque
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Deque, List, Tuple, Union
+from typing import Any, Deque, Dict, List, Tuple, Union
 
 logger = logging.getLogger(__name__)
 
@@ -197,8 +197,10 @@ class LintRules:
 
 def parse_token(token: str) -> Dict:
     """Parse slurmdbd configuration tokens into Python-understandable format.
+
     Args:
         token (str): Token in "key=value" format.
+
     Returns:
         (Dict[str, Any]): The parsed token.
     """
@@ -280,9 +282,11 @@ class SlurmdbdConfEditor:
 
     def __scan(self, metadata: Deque[str], _result_store: Dict[str, Any] = {}) -> Dict[str, Any]:
         """Recursive scanner for parsing slurmdbd.conf.
+
         Args:
             metadata (Deque[str]): The lines for slurmdbd.conf formatted into a queue.
             _result_store (Dict[str, Any]): Where each parsed line is stored.
+
         Returns:
             (Dict[str, Any]): Fully parsed slurmdbd.conf file.
         """
