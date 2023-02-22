@@ -25,7 +25,7 @@ class SlurmdbdManager:
 
     @property
     def conf(self) -> SlurmdbdConfEditor:
-        """slurmdbd configuration file editor.
+        """Slurmdbd configuration file editor.
 
         Returns:
             (SlurmdbdConfEditor): Instance of slurmdbd configuration file editor.
