@@ -11,7 +11,6 @@ from typing import Any, Dict
 
 from charms.data_platform_libs.v0.data_interfaces import (
     DatabaseCreatedEvent,
-    DatabaseEndpointsChangedEvent,
     DatabaseRequires,
 )
 from charms.fluentbit.v0.fluentbit import FluentbitClient
@@ -81,7 +80,6 @@ class SlurmdbdCharm(CharmBase):
             self.on.munge_available: self._on_munge_available,
             self.on.write_config: self._write_config_and_restart_slurmdbd,
             self._db.on.database_created: self._on_database_created,
-            self._db.on.endpoints_changed: self._on_database_endpoints_changed,
             self._slurmdbd_peer.on.slurmdbd_peer_available: self._write_config_and_restart_slurmdbd,
             self._slurmdbd.on.slurmctld_available: self._on_slurmctld_available,
             self._slurmdbd.on.slurmctld_unavailable: self._on_slurmctld_unavailable,
@@ -165,28 +163,15 @@ class SlurmdbdCharm(CharmBase):
                 Information passed by MySQL after the slurm_acct_db database has been created.
         """
         logger.debug("Configuring new backend database for slurmdbd.")
-        host, port = event.endpoints.split(",")[0].split(":")
         self.set_db_info(
             {
                 "db_username": event.username,
                 "db_password": event.password,
-                "db_hostname": host,
-                "db_port": port,
+                "db_hostname": "127.0.0.1",
+                "db_port": "3306",
                 "db_name": "slurm_acct_db",
             }
         )
-        self._write_config_and_restart_slurmdbd(event)
-
-    def _on_database_endpoints_changed(self, event: DatabaseEndpointsChangedEvent) -> None:
-        """Update storage host and port after database endpoint changes.
-
-        Args:
-            event (DatabaseEndpointsChangedEvent):
-                Information passed by MySQL after database endpoints change.
-        """
-        logger.debug("Updating storage host and storage port endpoints.")
-        host, port = event.endpoints.split(",")[0].split(":")
-        self.set_db_info({"db_hostname": host, "db_port": port})
         self._write_config_and_restart_slurmdbd(event)
 
     def _on_slurmctld_available(self, event):
